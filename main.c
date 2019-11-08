@@ -62,7 +62,8 @@ struct Instruction * enterIns()
 	scanf("%d", &num_of_ins);
 
 	/* Allocate memory to hold a set of instructions based on total number of instructions+1 (instruction 0 used for dependency checking)*/
-	struct Instruction *array_ptr = malloc((num_of_ins + 1) * sizeof(struct Instruction));
+	int size = (num_of_ins + 1) * sizeof(struct Instruction);
+	struct Instruction *array_ptr = (struct Instruction*)malloc(size);
 	if (array_ptr == NULL) {
 		printf("mem failed to allocate");
 		exit(0);
@@ -97,9 +98,10 @@ void delayFunction(struct Instruction* ins_ptr)
 
 	/* For each instruction i from 2 to total number of instructions, initialize delay as 0 and check for dependency
 	between instruction (i-2) and i, as well as between instruction (i-1) and i */
-	int amount_of_ins = *(&ins_ptr + 1) - ins_ptr;
-	for (int i = 0; i < amount_of_ins; i++) {
+	int x = sizeof(struct Instruction);
 
+	for (int i = 0; ins_ptr != NULL; i++) {
+		ins_ptr++;
 	}
 
 	{ /* begin for-loop */
@@ -133,3 +135,15 @@ void printChart()
 
 
 // TODO: Free mem
+
+
+
+// OLD CODE
+//	/* Allocate memory to hold a set of instructions based on total number of instructions+1 (instruction 0 used for dependency checking)*/
+//int size = (num_of_ins + 1) * sizeof(struct Instruction);
+//struct Instruction* array_ptr = malloc(size);
+//int x = sizeof(array_ptr[0]);
+//if (array_ptr == NULL) {
+//	printf("mem failed to allocate");
+//	exit(0);
+//}
