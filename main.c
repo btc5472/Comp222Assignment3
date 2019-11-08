@@ -12,19 +12,20 @@ immediately after they are written in the same cycle.
 #include <stdlib.h>
 #include <stdio.h>
 
-struct Instruction * enterIns();
-void delayFunction(struct Instruction*);
+struct Instruction * enterIns(struct Instruction*, int*);
+void delayFunction(struct Instruction*, int);
 void printChart();
 
-/*Define structure for instruction containing fields for destination register, 2 source registers, and individual instruction delay
-and a variable as pointer to structure for creating a dynamic array of instructions */
+/*Define structure for instruction containing fields for destination register, 2 source registers, and individual
+instruction delay and a variable as pointer to structure for creating a dynamic array of instructions */
 struct Instruction {
-	int dr, sr1, sr2, ins_delay;
+	int dr, sr1, sr2, instruction_delay;
 };
 
 int main() {
 	int choice = 0;
-	struct Instruction *instruction_set_ptr;
+	int num_of_instructions = 0;
+	struct Instruction *instruction_set_ptr = NULL;
 
 	do {
 		printf("Pipelined instruction performance\n\n");
@@ -33,10 +34,10 @@ int main() {
 		scanf("%d", &choice);
 
 		if (choice == 1)
-			instruction_set_ptr = enterIns();
+			instruction_set_ptr = enterIns(instruction_set_ptr, &num_of_instructions);
 
 		if (choice == 2)
-			delayFunction(instruction_set_ptr);
+			delayFunction(instruction_set_ptr, num_of_instructions);
 
 
 		if (choice > 3 || choice < 1)
@@ -50,58 +51,54 @@ int main() {
 }
 
 // FUNCTION TO ENTER INSTRUCTIONS
-struct Instruction * enterIns()
+struct Instruction * enterIns(struct Instruction * iptr, int * num_of_ins)
 {
 	/* Declare local variables, including an array of characters to store user input */
-	int num_of_ins = 0;
 	char str_instruction[9];
 	str_instruction[8] = '0';
 
 	/* Prompt for total number of instructions */
 	printf("Enter number of instructions: ");
-	scanf("%d", &num_of_ins);
+	scanf("%d", num_of_ins);
 
 	/* Allocate memory to hold a set of instructions based on total number of instructions+1 (instruction 0 used for dependency checking)*/
-	int size = (num_of_ins + 1) * sizeof(struct Instruction);
-	struct Instruction *array_ptr = (struct Instruction*)malloc(size);
-	if (array_ptr == NULL) {
+	int size = (*num_of_ins + 1) * sizeof(struct Instruction);
+	iptr = (struct Instruction*)malloc(size);
+	if (iptr == NULL) {
 		printf("mem failed to allocate");
 		exit(0);
 	}
 
 	/* Initialize instruction 0's destination register to -1 to prevent false RAW dependency w/ instruction 2 */
-	array_ptr[0].dr = -1;
+	iptr[0].dr = -1;
 
 	/* For each instruction, prompt for user input with instruction number, such as: 1)
 	and read instruction as a string and store at proper field of appropriate index within dynamic array of instructions */
-	for (int i = 1; i <= num_of_ins; i++) {
+	for (int i = 1; i <= *num_of_ins; i++) {
 		printf("%d) ", i);
-		if (!scanf("%s", &str_instruction)) {
+		if (!scanf("%s", str_instruction)) {
 			printf("Invalid instruction, now exitting");
 			exit(0);
 		}
 		printf("\n");
 
 		// parse string to take out r values
-		array_ptr[i].dr = atoi(&str_instruction[1]);
-		array_ptr[i].sr1 = atoi(&str_instruction[4]);
-		array_ptr[i].sr2 = atoi(&str_instruction[7]);
+		iptr[i].dr = atoi(&str_instruction[1]);
+		iptr[i].sr1 = atoi(&str_instruction[4]);
+		iptr[i].sr2 = atoi(&str_instruction[7]);
 	}
-
-	return(array_ptr);
+	return(iptr);
 }
 
-// void FUNCTION TO CALCULATE DELAY OF SET OF INSTRUCTIONS ON A 5 - STAGE PIPLELINE ARCHITECTURE
-void delayFunction(struct Instruction* ins_ptr)
+// FUNCTION TO CALCULATE DELAY OF SET OF INSTRUCTIONS ON A 5 - STAGE PIPLELINE ARCHITECTURE
+void delayFunction(struct Instruction* iptr, int num_of_ins)
 {
 	/* Declare local variables */
 
 	/* For each instruction i from 2 to total number of instructions, initialize delay as 0 and check for dependency
 	between instruction (i-2) and i, as well as between instruction (i-1) and i */
-	int x = sizeof(struct Instruction);
-
-	for (int i = 0; ins_ptr != NULL; i++) {
-		ins_ptr++;
+	for (int i = 0; i < num_of_ins; i++) {
+		printf("%d", iptr[i].dr);
 	}
 
 	{ /* begin for-loop */
