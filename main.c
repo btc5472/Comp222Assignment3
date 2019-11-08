@@ -16,10 +16,13 @@ struct Instruction * enterIns(struct Instruction*, int*);
 void delayFunction(struct Instruction*, int);
 void printChart();
 
-/*Define structure for instruction containing fields for destination register, 2 source registers, and individual
-instruction delay and a variable as pointer to structure for creating a dynamic array of instructions */
+// Define structure for instruction containing fields for destination register, 2 source registers, and individual
+// instruction delay and a variable as pointer to structure for creating a dynamic array of instructions
+
+// An Instuction consists of a destination register (dr) and 2 source registers (sr1 sr2) because were reading assembly
+// code. The last variable i_delay is to track the number of bubbles/stalls to insert before the instruction.
 struct Instruction {
-	int dr, sr1, sr2, instruction_delay;
+	int dr, sr1, sr2, i_delay;
 };
 
 int main() {
@@ -33,15 +36,11 @@ int main() {
 		printf("Enter Selection: ");
 		scanf("%d", &choice);
 
-		if (choice == 1)
-			instruction_set_ptr = enterIns(instruction_set_ptr, &num_of_instructions);
+		if (choice == 1) instruction_set_ptr = enterIns(instruction_set_ptr, &num_of_instructions);
 
-		if (choice == 2)
-			delayFunction(instruction_set_ptr, num_of_instructions);
+		if (choice == 2) delayFunction(instruction_set_ptr, num_of_instructions);
 
-
-		if (choice > 3 || choice < 1)
-			printf("Please enter a valid choice 1-3\n");
+		if (choice > 3 || choice < 1) printf("Please enter a valid choice 1-3\n");
 
 	} while (choice != 3);
 	
@@ -51,7 +50,8 @@ int main() {
 }
 
 // FUNCTION TO ENTER INSTRUCTIONS
-struct Instruction * enterIns(struct Instruction * iptr, int * num_of_ins)
+struct Instruction *
+enterIns (struct Instruction * iptr, int * num_of_ins)
 {
 	/* Declare local variables, including an array of characters to store user input */
 	char str_instruction[9];
@@ -61,7 +61,8 @@ struct Instruction * enterIns(struct Instruction * iptr, int * num_of_ins)
 	printf("Enter number of instructions: ");
 	scanf("%d", num_of_ins);
 
-	/* Allocate memory to hold a set of instructions based on total number of instructions+1 (instruction 0 used for dependency checking)*/
+	/* Allocate memory to hold a set of instructions based on total number of instructions+1
+	(instruction 0 used for dependency checking)*/
 	int size = (*num_of_ins + 1) * sizeof(struct Instruction);
 	iptr = (struct Instruction*)malloc(size);
 	if (iptr == NULL) {
@@ -91,7 +92,8 @@ struct Instruction * enterIns(struct Instruction * iptr, int * num_of_ins)
 }
 
 // FUNCTION TO CALCULATE DELAY OF SET OF INSTRUCTIONS ON A 5 - STAGE PIPLELINE ARCHITECTURE
-void delayFunction(struct Instruction* iptr, int num_of_ins)
+void
+delayFunction (struct Instruction* iptr, int num_of_ins)
 {
 	/* Declare local variables */
 
@@ -117,26 +119,42 @@ void delayFunction(struct Instruction* iptr, int num_of_ins)
 	} /* end for-loop */
 
 	/* print chart */
-	printChart();
+	printChart(iptr, num_of_ins);
 	return;
 }
 
 // FUNCTION TO PRINT OUT CHART OF INSTRUCTIONS WITH CYCLES WHEN EACH INSTRUCTION IS FETCHED
-void printChart()
+void
+printChart(struct Instruction * iptr, int num_of_ins)
 {
-	/* Declare local variables */
-	/* For each instruction, align instructions by tabbing according to delay, and print out stages with proper tabbing (IF\tID\tEX\tMM\tWB) */
+	int num_of_cycles = 0, num_of_pipeline_stages = 0;
+	char stages_str[16] = "IF\tID\tEX\tMM\tWB\n";
+	stages_str[15] = '0';
+
+	// Align each insruction with its cycles according to delay num
+	// and print out stages with proper tabbing (IF\tID\tEX\tMM\tWB)
+	num_of_cycles = num_of_pipeline_stages + num_of_ins - 1;
+	printf("Total number of cycles: %d\n\n", num_of_cycles);
+	for (int c = 1; c <= num_of_cycles; c++) {
+		printf("Instruction %d Fetched at Cycle %d\n", num_of_cycles, num_of_cycles);
+		printf("%d) ", num_of_cycles);
+		// Insert bubbles/stalls (represented as tabs)
+		for (int b = 0; b < iptr[b + 1].i_delay; b++) {
+			printf("\t");
+		}
+		printf("%s\n", stages_str);
+	}
 	return;
 }
 
 
 
 // TODO: Free mem
+// TODO: Validate input for instructions
 
 
 
 // OLD CODE
-//	/* Allocate memory to hold a set of instructions based on total number of instructions+1 (instruction 0 used for dependency checking)*/
 //int size = (num_of_ins + 1) * sizeof(struct Instruction);
 //struct Instruction* array_ptr = malloc(size);
 //int x = sizeof(array_ptr[0]);
