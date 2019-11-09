@@ -104,7 +104,7 @@ enter_instructions (struct Instruction * iptr)
 void
 calculate_delay (struct Instruction* iptr)
 {
-	int total_num_of_cycles = 0, num_of_delays = 0, num_of_ins = 0;
+	int total_num_of_cycles = 0, num_of_delays = 0, num_of_ins = 0, overlap = 2;
 	const int NUM_OF_PIPELINE_STAGES = 5;
 
 	while (iptr[num_of_ins].next_i_ptr != NULL) {
@@ -122,11 +122,21 @@ calculate_delay (struct Instruction* iptr)
 		if (iptr[i].sr1 == iptr[i - 1].dr || iptr[i].sr2 == iptr[i - 1].dr) {
 			iptr[i].delay = 2;
 			num_of_delays += 2;
+			overlap = 0;
 		}
 		else if (iptr[i].sr1 == iptr[i - 2].dr || iptr[i].sr2 == iptr[i - 2].dr) {
-			iptr[i].delay = 1;
-			num_of_delays += 2;
+			if (overlap == 2) {
+				iptr[i].delay = 1;
+				num_of_delays += 1;
+				overlap = 1;
+			}
 		}
+		else {
+			overlap = 2;
+		}
+
+		// Calculate individual delay for current i
+
 	}
 
 	total_num_of_cycles = (NUM_OF_PIPELINE_STAGES + (num_of_ins - 1) + num_of_delays);
